@@ -1,5 +1,5 @@
 # Step 1: Use an official Maven image with JDK 17 to build and bundle the app
-FROM maven:3.8.6-openjdk-17-slim AS build
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Copy the build configuration and source code
@@ -12,19 +12,18 @@ RUN mvn dependency:go-offline -B
 # Package the application tests without executing them during image compilation
 RUN mvn test-compile
 
-# Step 2: Use a slim runtime image containing Chrome for execution headless environment
-FROM openjdk:17-slim
+# Step 2: Use a slim runtime image containing Java 17 and Chrome for execution headless environment
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Install stable Chrome dependencies required for headless Selenium runs
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     wget \
     gnupg \
     curl \
     unzip \
     libglib2.0-0 \
     libnss3 \
-    libgconf-2-4 \
     libfontconfig1 \
     chromium \
     && rm -rf /var/lib/apt/lists/*
